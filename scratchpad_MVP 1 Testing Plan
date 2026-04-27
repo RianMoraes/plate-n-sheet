@@ -1,0 +1,18 @@
+# MVP 1 Testing Plan
+
+- [x] Open http://localhost:3000 -> **BUILD ERROR**
+- [ ] Take initial screenshot
+- [ ] Fill inputs:
+    - Diâmetro Maior: 500
+    - Diâmetro Menor: 300
+    - Altura: 400
+- [ ] Click "Gerar Planificação"
+- [ ] Take result screenshot
+- [ ] Verify canvas and data table
+- [ ] Report findings
+
+## Findings
+The application failed to load with a Next.js build error:
+`Transforming CSS failed. Selector "*" is not pure. Pure selectors must contain at least one local class or id.` in `./src/app/page.module.css`.
+
+I cannot proceed with testing until this is fixed. I do not have permissions to edit files outside the `browser` directory.

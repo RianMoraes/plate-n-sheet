@@ -1,0 +1,7 @@
+# MVP 1 Verification Checklist
+
+- [x] Navigate to http://localhost:3000
+- [x] Verify default values (D=500, d=300, H=400)
+- [x] Click "▶ Gerar Planificação"
+- [x] Capture full-page screenshot
+- [x] Return the screenshot path

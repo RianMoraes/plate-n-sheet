@@ -1,0 +1,31 @@
+# MVP 1 Verification - Truncated Cone Flat Pattern
+
+## Initial State
+- URL: `http://localhost:3000`
+- Form elements present:
+  - Diâmetro Maior (mm): Default 500
+  - Diâmetro Menor (mm): Default 300
+  - Altura (mm): Default 400
+  - Button: "▶ Gerar Planificação"
+
+## Results After Clicking "Gerar Planificação"
+- **Calculated Data Table**:
+  - Geratriz (s): 412.31 mm
+  - Raio externo (L): 1030.78 mm
+  - Raio interno (l): 618.47 mm
+  - Ângulo do setor (θ): 87.31°
+  - Arco externo: 1570.80 mm
+  - Arco interno: 942.48 mm
+- **Canvas Rendering**:
+  - Shape: Annular sector (truncated cone development).
+  - Background: Dark blue.
+  - Border: Red lines.
+  - Labels: Correctly positioned showing diameters, radii, and angle.
+  - Centering: The drawing is properly centered within the canvas area.
+
+## Errors
+- No errors found in the browser console or on the UI.
+- Initial CSS module error reported by the planner was fixed.
+
+## Conclusion
+MVP 1 is fully functional and meets all requirements. Lógica geométrica está correta.

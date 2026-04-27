@@ -1,0 +1,20 @@
+# MVP 4 Verification Plan
+
+- [x] Navigate to http://localhost:3000
+- [x] Click the "🧊 Visualização 3D" button
+- [x] Verify 3D grid and model for "Cone Truncado"
+- [x] Take screenshot of "Cone Truncado" 3D
+- [x] Switch to "Cone Excêntrico"
+- [x] Verify 3D model for "Cone Excêntrico"
+- [x] Rotate camera
+- [x] Take screenshot of "Cone Excêntrico" 3D
+- [x] Report results
+
+Final Findings:
+- Navigation to localhost:3000 was successful.
+- 3D Visualização button works as expected.
+- Both "Cone Truncado" and "Cone Excêntrico" 3D models render correctly with realistic lighting and materials.
+- Camera rotation is interactive and smooth.
+- Screenshots captured:
+  - Cone Truncado 3D: C:\Users\rians\.gemini\antigravity\brain\49c8ba13-15f9-4b8a-b8c7-9b25fe8539c4\cone_truncado_3d_1777251287391.png
+  - Cone Excêntrico 3D: C:\Users\rians\.gemini\antigravity\brain\49c8ba13-15f9-4b8a-b8c7-9b25fe8539c4\cone_eccentric_3d_1777251319972.png

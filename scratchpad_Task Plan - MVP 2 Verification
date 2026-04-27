@@ -1,0 +1,20 @@
+# Task Plan - MVP 2 Verification
+
+- [x] Open http://localhost:3000
+- [x] Capture initial screenshot (auto-calculated)
+- [ ] Change "Diâmetro Maior" to 800
+- [ ] Capture second screenshot after change
+- [ ] Change "Altura" to 600
+- [ ] Capture third screenshot after change
+- [ ] Report results and file paths
+
+Observations:
+- Page loaded successfully.
+- Sidebar contains inputs for Diâmetro Maior, Diâmetro Menor, and Altura.
+- Results table shows calculated values.
+- Canvas renders the 2D layout with labels and dimensions.
+- Initial screenshot saved to: C:\Users\rians\.gemini\antigravity\brain\49c8ba13-15f9-4b8a-b8c7-9b25fe8539c4\mvp2_initial_state_1777248955138.png
+- Struggling with input field: values are appending (e.g., 5800 instead of 800).
+- Reloaded page multiple times. Backspaces and Control+A seem unreliable.
+- Final attempt strategy: Click, Control+A, Backspace, Type 800. Then Tab, Tab, Control+A, Backspace, Type 600.
+- Will verify each step with DOM reads if needed.

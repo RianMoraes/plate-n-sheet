@@ -1,0 +1,22 @@
+# MVP 5 Verification Plan
+
+- [x] Navigate to http://localhost:3000
+- [x] Ensure "Planificação 2D" is selected (Truncated Cone)
+- [x] Perform measurement (2 clicks) on Truncated Cone
+- [x] Verify measurement line and label appear
+- [x] Right-click to clear measurement and verify it disappears
+- [x] Switch to "Cone Excêntrico"
+- [x] Perform measurement on Eccentric Cone
+- [x] Verify measurement line and label appear
+- [x] Take screenshot of a successful measurement
+- [x] Report results
+
+## Findings
+- Canvas center in DOM is at (583, 557).
+- Visual coordinates for sector corners (approximate):
+  - Top-left: (440, 450)
+  - Top-right: (725, 450)
+- Truncated Cone measurement: Success (Value: ~1423.82 mm).
+- Right-click to clear: Success.
+- Eccentric Cone measurement: Success (Value: ~757.25 mm).
+- Final verification: MVP 5 is fully functional on both piece types.

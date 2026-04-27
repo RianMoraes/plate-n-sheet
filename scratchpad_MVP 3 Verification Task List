@@ -1,0 +1,14 @@
+# MVP 3 Verification Task List
+
+- [x] Navigate to http://localhost:3000
+- [x] Verify "Tipo de Peça" options: "Cone Truncado" and "Cone Excêntrico"
+- [x] Select "Cone Excêntrico"
+- [f] Verify triangulation pattern on canvas (FAILED: Runtime TypeError)
+- [ ] Take screenshot of eccentric cone unfold
+- [x] Switch back to "Cone Truncado" and verify it works (Works after reload)
+- [x] Report findings
+
+## Findings
+- Switching to "Cone Excêntrico" causes a runtime error: `Cannot read properties of undefined (reading 'length')` in `EccentricConeCanvas.useEffect`.
+- "Cone Truncado" works correctly.
+- The UI options are present as expected.

@@ -1,0 +1,11 @@
+# MVP 4 Verification - 3D Visualization
+
+- [ ] Navigate to http://localhost:3000 (Currently getting ERR_CONNECTION_REFUSED, waiting for server to start)
+- [ ] Verify "Visualização 3D" button exists and click it
+- [ ] Verify 3D scene renders for "Cone Truncado"
+- [ ] Take screenshot of 3D view (Cone Truncado)
+- [ ] Switch to "Cone Excêntrico"
+- [ ] Verify 3D scene renders for "Cone Excêntrico" (one side straight)
+- [ ] Take screenshot of 3D view (Cone Excêntrico)
+- [ ] Verify rotation (OrbitControls)
+- [ ] Report findings
