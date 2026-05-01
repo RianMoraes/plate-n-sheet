@@ -82,6 +82,50 @@ export default function ConeFrustumCanvas({ unfold, diameterBig, diameterSmall, 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [measurePoints, setMeasurePoints] = useState<{ x: number; y: number }[]>([]);
   const [currentScale, setCurrentScale] = useState(1);
+  const [hoverPoint, setHoverPoint] = useState<{ x: number; y: number } | null>(null);
+
+  const getSnappedPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const rawX = ((e.clientX - rect.left) / rect.width) * canvas.width;
+    const rawY = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const { L, l, thetaRad } = unfold;
+    const marginTop = 50, marginBottom = 80, marginSide = 90, labelPadTop = 50;
+    const availW = W - 2 * marginSide;
+    const availH = H - marginTop - marginBottom - labelPadTop;
+    const sectorWidth = thetaRad < Math.PI ? 2 * L * Math.sin(thetaRad / 2) : 2 * L;
+    const scale = Math.min(availW / sectorWidth, availH / L) * 0.90;
+    const ox = W / 2;
+    const oy = marginTop + labelPadTop + L * scale;
+
+    const dx = rawX - ox;
+    const dy = rawY - oy;
+    let dist = Math.hypot(dx, dy);
+    let angle = Math.atan2(dy, dx);
+    let angleDiff = angle - (-Math.PI / 2);
+    
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+    const isInsideRadius = dist >= l * scale && dist <= L * scale;
+    const isInsideAngle = Math.abs(angleDiff) <= thetaRad / 2;
+
+    let finalX = rawX;
+    let finalY = rawY;
+
+    if (!isInsideRadius || !isInsideAngle) {
+        let clampedDist = Math.max(l * scale, Math.min(L * scale, dist));
+        let clampedAngleDiff = Math.max(-thetaRad / 2, Math.min(thetaRad / 2, angleDiff));
+        let clampedAngle = -Math.PI / 2 + clampedAngleDiff;
+        finalX = ox + clampedDist * Math.cos(clampedAngle);
+        finalY = oy + clampedDist * Math.sin(clampedAngle);
+    }
+    return { x: finalX, y: finalY };
+  }, [unfold]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -163,24 +207,33 @@ export default function ConeFrustumCanvas({ unfold, diameterBig, diameterSmall, 
       const distPx = Math.hypot(p2.x - p1.x, p2.y - p1.y);
       const distReal = distPx / scale;
       drawDimLine(ctx, p1.x, p1.y, p2.x, p2.y, `${distReal.toFixed(2)} mm`, 0, -15, "#ffffff", false);
+    } else if (measurePoints.length === 1 && hoverPoint) {
+      const p1 = measurePoints[0];
+      const p2 = hoverPoint;
+      const distPx = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const distReal = distPx / scale;
+      drawDimLine(ctx, p1.x, p1.y, p2.x, p2.y, `${distReal.toFixed(2)} mm`, 0, -15, "#ffffff88", true);
     }
-  }, [unfold, diameterBig, diameterSmall, height, measurePoints]);
+
+    if (hoverPoint && measurePoints.length < 2) {
+      ctx.fillStyle = "#ffffff88";
+      ctx.beginPath(); ctx.arc(hoverPoint.x, hoverPoint.y, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1; ctx.setLineDash([2, 2]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }, [unfold, diameterBig, diameterSmall, height, measurePoints, hoverPoint]);
 
   useEffect(() => {
     draw();
   }, [draw]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
-    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+    const pt = getSnappedPoint(e);
+    if (!pt) return;
 
     if (measurePoints.length >= 2) {
-      setMeasurePoints([{ x, y }]);
+      setMeasurePoints([pt]);
     } else {
-      setMeasurePoints([...measurePoints, { x, y }]);
+      setMeasurePoints([...measurePoints, pt]);
     }
   };
 
@@ -191,6 +244,11 @@ export default function ConeFrustumCanvas({ unfold, diameterBig, diameterSmall, 
         width={900}
         height={620}
         onClick={handleCanvasClick}
+        onMouseMove={(e) => {
+          const pt = getSnappedPoint(e);
+          if (pt) setHoverPoint(pt);
+        }}
+        onMouseLeave={() => setHoverPoint(null)}
         onContextMenu={(e) => { e.preventDefault(); setMeasurePoints([]); }}
         style={{ width: "100%", maxWidth: 900, height: "auto", borderRadius: 8, border: "1px solid #21262d", cursor: "crosshair" }}
       />

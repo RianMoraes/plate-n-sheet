@@ -49,6 +49,68 @@ function drawDimLine(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: 
 export default function EccentricConeCanvas({ unfold, diameterBig, diameterSmall, height }: EccentricConeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [measurePoints, setMeasurePoints] = useState<{ x: number; y: number }[]>([]);
+  const [hoverPoint, setHoverPoint] = useState<{ x: number; y: number } | null>(null);
+
+  const getSnappedPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !unfold || !("basePoints" in unfold)) return null;
+    const rect = canvas.getBoundingClientRect();
+    const rawX = ((e.clientX - rect.left) / rect.width) * canvas.width;
+    const rawY = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+    const { basePoints, topPoints, minX, maxX, minY, maxY } = unfold;
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const margin = 60;
+    const patternW = maxX - minX;
+    const patternH = maxY - minY;
+    const scale = Math.min((W - 2 * margin) / patternW, (H - 2 * margin) / patternH);
+
+    const offsetX = (W - patternW * scale) / 2 - minX * scale;
+    const offsetY = (H - patternH * scale) / 2 - minY * scale;
+
+    const polygon = [];
+    for (let i = 0; i < basePoints.length; i++) {
+        polygon.push({ x: basePoints[i].x * scale + offsetX, y: basePoints[i].y * scale + offsetY });
+    }
+    for (let i = topPoints.length - 1; i >= 0; i--) {
+        polygon.push({ x: topPoints[i].x * scale + offsetX, y: topPoints[i].y * scale + offsetY });
+    }
+
+    let isInside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x, yi = polygon[i].y;
+        const xj = polygon[j].x, yj = polygon[j].y;
+        const intersect = ((yi > rawY) !== (yj > rawY)) && (rawX < (xj - xi) * (rawY - yi) / (yj - yi) + xi);
+        if (intersect) isInside = !isInside;
+    }
+
+    let finalX = rawX;
+    let finalY = rawY;
+
+    if (!isInside) {
+        let minDist = Infinity;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const a = polygon[j];
+            const b = polygon[i];
+            const atob = { x: b.x - a.x, y: b.y - a.y };
+            const atop = { x: rawX - a.x, y: rawY - a.y };
+            const len2 = atob.x * atob.x + atob.y * atob.y;
+            let dot = atop.x * atob.x + atop.y * atob.y;
+            const t = Math.min(1, Math.max(0, len2 > 0 ? dot / len2 : 0));
+            const closestX = a.x + atob.x * t;
+            const closestY = a.y + atob.y * t;
+            const dist = Math.hypot(rawX - closestX, rawY - closestY);
+            if (dist < minDist) {
+                minDist = dist;
+                finalX = closestX;
+                finalY = closestY;
+            }
+        }
+    }
+    return { x: finalX, y: finalY };
+  }, [unfold]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -132,19 +194,28 @@ export default function EccentricConeCanvas({ unfold, diameterBig, diameterSmall
         const distPx = Math.hypot(p2.x - p1.x, p2.y - p1.y);
         const distReal = distPx / scale;
         drawDimLine(ctx, p1.x, p1.y, p2.x, p2.y, `${distReal.toFixed(2)} mm`, "#ffffff", false);
+    } else if (measurePoints.length === 1 && hoverPoint) {
+        const p1 = measurePoints[0];
+        const p2 = hoverPoint;
+        const distPx = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const distReal = distPx / scale;
+        drawDimLine(ctx, p1.x, p1.y, p2.x, p2.y, `${distReal.toFixed(2)} mm`, "#ffffff88", true);
     }
-  }, [unfold, measurePoints]);
+
+    if (hoverPoint && measurePoints.length < 2) {
+        ctx.fillStyle = "#ffffff88";
+        ctx.beginPath(); ctx.arc(hoverPoint.x, hoverPoint.y, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1; ctx.setLineDash([2, 2]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }, [unfold, measurePoints, hoverPoint]);
 
   useEffect(() => { draw(); }, [draw]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
-    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
-    if (measurePoints.length >= 2) setMeasurePoints([{ x, y }]);
-    else setMeasurePoints([...measurePoints, { x, y }]);
+    const pt = getSnappedPoint(e);
+    if (!pt) return;
+    if (measurePoints.length >= 2) setMeasurePoints([{ x: pt.x, y: pt.y }]);
+    else setMeasurePoints([...measurePoints, { x: pt.x, y: pt.y }]);
   };
 
   return (
@@ -154,6 +225,11 @@ export default function EccentricConeCanvas({ unfold, diameterBig, diameterSmall
         width={900}
         height={620}
         onClick={handleCanvasClick}
+        onMouseMove={(e) => {
+          const pt = getSnappedPoint(e);
+          if (pt) setHoverPoint(pt);
+        }}
+        onMouseLeave={() => setHoverPoint(null)}
         onContextMenu={(e) => { e.preventDefault(); setMeasurePoints([]); }}
         style={{ width: "100%", maxWidth: 900, height: "auto", borderRadius: 8, border: "1px solid #21262d", cursor: "crosshair" }}
       />

@@ -147,7 +147,7 @@ A planificação de um cone truncado produz um **setor de anel** (coroa circular
 | **Cálculo de Distância Real** | Converte a distância em pixels para milímetros reais usando o fator de escala dinâmico. |
 | **Feedback Visual** | Desenha uma linha branca com setas e o valor da distância centralizado. |
 | **Limpeza Rápida** | Uso do botão direito (`contextmenu`) para resetar as medições instantaneamente. |
-| **Cursor Inteligente** | Mudança do cursor para `crosshair` para precisão de clique no desenho. |
+| **Cursor Inteligente & Snap** | Mudança do cursor para `crosshair`. O cursor **sempre se fixa (snap) à peça**, impedindo a medição fora da área válida do material, com um preview em tempo real ao mover o mouse. |
 
 ---
 
