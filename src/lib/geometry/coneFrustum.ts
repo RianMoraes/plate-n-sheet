@@ -74,6 +74,10 @@ export interface ConeFrustumUnfold {
   arcLengthOuter: number;
   /** Comprimento do arco interno (= circunferência da base menor) */
   arcLengthInner: number;
+  /** Largura da chapa planificada (Bounding Box X) */
+  patternWidth: number;
+  /** Altura da chapa planificada (Bounding Box Y) */
+  patternHeight: number;
 }
 
 /**
@@ -120,5 +124,30 @@ export function calcConeFrustumUnfold(params: ConeFrustumParams): ConeFrustumUnf
   const arcLengthOuter = thetaRad * L; // deve ser ≈ 2πR
   const arcLengthInner = thetaRad * l; // deve ser ≈ 2πr
 
-  return { R, r, s, L, l, thetaRad, thetaDeg, arcLengthOuter, arcLengthInner };
+  // Bounding Box da Planificação
+  const startAngle = -Math.PI / 2 - thetaRad / 2;
+  const endAngle = -Math.PI / 2 + thetaRad / 2;
+  
+  const xs = [
+    L * Math.cos(startAngle), L * Math.cos(endAngle),
+    l * Math.cos(startAngle), l * Math.cos(endAngle)
+  ];
+  const ys = [
+    L * Math.sin(startAngle), L * Math.sin(endAngle),
+    l * Math.sin(startAngle), l * Math.sin(endAngle)
+  ];
+  
+  // Extremos dos arcos (ângulos múltiplos de PI/2)
+  const startK = Math.ceil(startAngle / (Math.PI / 2));
+  const endK = Math.floor(endAngle / (Math.PI / 2));
+  for (let k = startK; k <= endK; k++) {
+    const angle = k * Math.PI / 2;
+    xs.push(L * Math.cos(angle), l * Math.cos(angle));
+    ys.push(L * Math.sin(angle), l * Math.sin(angle));
+  }
+  
+  const patternWidth = Math.max(...xs) - Math.min(...xs);
+  const patternHeight = Math.max(...ys) - Math.min(...ys);
+
+  return { R, r, s, L, l, thetaRad, thetaDeg, arcLengthOuter, arcLengthInner, patternWidth, patternHeight };
 }

@@ -192,8 +192,9 @@ export default function ConeFrustumCanvas({ unfold, diameterBig, diameterSmall, 
     drawAngleDim(ctx, ox, oy, Math.min(l * scale * 0.45, 65), startAngle, endAngle, `θ = ${unfold.thetaDeg.toFixed(1)}°`);
 
     // Rodapé
-    ctx.fillStyle = "#484f58"; ctx.font = "11px monospace"; ctx.textAlign = "center";
-    ctx.fillText(`h = ${height} mm  ·  s = ${unfold.s.toFixed(1)} mm (geratriz)`, W / 2, H - 15);
+    ctx.fillStyle = "#8b949e"; ctx.font = "11px monospace"; ctx.textAlign = "center";
+    ctx.fillText(`Largura da Chapa: ${unfold.patternWidth.toFixed(1)} mm`, W / 2, H - 25);
+    ctx.fillText(`Altura da Chapa: ${unfold.patternHeight.toFixed(1)} mm`, W / 2, H - 10);
 
     // ─── MEDIÇÃO ───────────────────────────────────────────────────────────
     measurePoints.forEach((p, i) => {

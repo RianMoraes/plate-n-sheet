@@ -60,6 +60,8 @@ A planificação de um cone truncado produz um **setor de anel** (coroa circular
 | Raio externo `L` | 1030.78 mm |
 | Raio interno `l` | 618.47 mm |
 | Ângulo `θ` | **87.31°** |
+| Largura da Chapa | 1416.73 mm |
+| Altura da Chapa | 733.91 mm |
 | Arco externo | 1570.80 mm (= π×500 ✅) |
 | Arco interno | 942.48 mm (= π×300 ✅) |
 

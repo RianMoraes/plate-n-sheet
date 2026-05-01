@@ -85,11 +85,13 @@ export default function HomePage() {
       doc.setFontSize(10);
       let y = 105;
       if (pieceType === "cone-truncado" && "L" in unfold) {
+        doc.text(`• Largura da Chapa: ${unfold.patternWidth.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Altura da Chapa: ${unfold.patternHeight.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Geratriz (s): ${unfold.s.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Raio Externo (L): ${unfold.L.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Raio Interno (l): ${unfold.l.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Ângulo do Setor: ${unfold.thetaDeg.toFixed(2)}°`, 20, y);
-      } else if (pieceType === "cone-excentrico" && "patternWidth" in unfold) {
+      } else if (pieceType === "cone-excentrico" && "minSlant" in unfold) {
         doc.text(`• Largura da Chapa: ${unfold.patternWidth.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Altura da Chapa: ${unfold.patternHeight.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Geratriz Máxima: ${unfold.maxSlant.toFixed(2)} mm`, 20, y); y += 7;
@@ -196,12 +198,14 @@ export default function HomePage() {
                 <tbody>
                   {pieceType === "cone-truncado" && "L" in unfold ? (
                     <>
+                      <ResultRow label="Largura Chapa" value={unfold.patternWidth} color="#ffd166" />
+                      <ResultRow label="Altura Chapa" value={unfold.patternHeight} color="#06d6a0" />
                       <ResultRow label="Geratriz (s)" value={unfold.s} color="#ffd166" />
                       <ResultRow label="Raio ext. (L)" value={unfold.L} color="#06d6a0" />
                       <ResultRow label="Raio int. (l)" value={unfold.l} color="#06d6a0" />
                       <ResultRow label="Ângulo (θ)" value={unfold.thetaDeg} unit="°" color="#a78bfa" />
                     </>
-                  ) : pieceType === "cone-excentrico" && "patternWidth" in unfold ? (
+                  ) : pieceType === "cone-excentrico" && "minSlant" in unfold ? (
                     <>
                       <ResultRow label="Largura Chapa" value={unfold.patternWidth} color="#ffd166" />
                       <ResultRow label="Altura Chapa" value={unfold.patternHeight} color="#06d6a0" />
