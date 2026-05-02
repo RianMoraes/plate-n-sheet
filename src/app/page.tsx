@@ -4,9 +4,14 @@ import React, { useState, useCallback, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { calcConeFrustumUnfold, ConeFrustumUnfold } from "@/lib/geometry/coneFrustum";
 import { calcEccentricConeUnfold, EccentricConeUnfold } from "@/lib/geometry/eccentricCone";
+import { calcRoundToRoundUnfold, RoundToRoundUnfold } from "@/lib/geometry/roundToRound";
+import { calcSquareToRoundUnfold, SquareToRoundUnfold } from "@/lib/geometry/squareToRound";
+import { DimensionRef } from "@/lib/geometry/materialThickness";
 import { PIECE_TYPES, PieceType } from "@/types/pieces";
 import ConeFrustumCanvas from "@/components/ConeFrustumCanvas";
 import EccentricConeCanvas from "@/components/EccentricConeCanvas";
+import RoundToRoundCanvas from "@/components/RoundToRoundCanvas";
+import SquareToRoundCanvas from "@/components/SquareToRoundCanvas";
 import Piece3D from "@/components/Piece3D";
 import styles from "./page.module.css";
 
@@ -18,8 +23,11 @@ export default function HomePage() {
   const [diameterBig, setDiameterBig] = useState<number>(500);
   const [diameterSmall, setDiameterSmall] = useState<number>(300);
   const [height, setHeight] = useState<number>(400);
+  const [thickness, setThickness] = useState<number>(0);
+  const [dimensionRef, setDimensionRef] = useState<DimensionRef>("medio");
+  const [offsetX, setOffsetX] = useState<number>(100);
 
-  const [unfold, setUnfold] = useState<ConeFrustumUnfold | EccentricConeUnfold | null>(null);
+  const [unfold, setUnfold] = useState<ConeFrustumUnfold | EccentricConeUnfold | RoundToRoundUnfold | SquareToRoundUnfold | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -28,17 +36,23 @@ export default function HomePage() {
     setError(null);
     try {
       if (pieceType === "cone-truncado") {
-        const result = calcConeFrustumUnfold({ diameterBig, diameterSmall, height });
+        const result = calcConeFrustumUnfold({ diameterBig, diameterSmall, height, thickness, dimensionRef });
         setUnfold(result);
       } else if (pieceType === "cone-excentrico") {
-        const result = calcEccentricConeUnfold({ diameterBig, diameterSmall, height });
+        const result = calcEccentricConeUnfold({ diameterBig, diameterSmall, height, thickness, dimensionRef });
+        setUnfold(result);
+      } else if (pieceType === "round-to-round") {
+        const result = calcRoundToRoundUnfold({ diameterBig, diameterSmall, height, offsetX, thickness, dimensionRef });
+        setUnfold(result);
+      } else if (pieceType === "square-to-round") {
+        const result = calcSquareToRoundUnfold({ squareSide: diameterBig, diameterSmall, height, thickness, dimensionRef });
         setUnfold(result);
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro desconhecido");
       setUnfold(null);
     }
-  }, [pieceType, diameterBig, diameterSmall, height]);
+  }, [pieceType, diameterBig, diameterSmall, height, thickness, dimensionRef, offsetX]);
 
   useEffect(() => {
     recalc();
@@ -92,6 +106,16 @@ export default function HomePage() {
         doc.text(`• Raio Interno (l): ${unfold.l.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Ângulo do Setor: ${unfold.thetaDeg.toFixed(2)}°`, 20, y);
       } else if (pieceType === "cone-excentrico" && "minSlant" in unfold) {
+        doc.text(`• Largura da Chapa: ${unfold.patternWidth.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Altura da Chapa: ${unfold.patternHeight.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Geratriz Máxima: ${unfold.maxSlant.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Geratriz Mínima: ${unfold.minSlant.toFixed(2)} mm`, 20, y);
+      } else if (pieceType === "round-to-round" && "offsetX" in unfold) {
+        doc.text(`• Largura da Chapa: ${unfold.patternWidth.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Altura da Chapa: ${unfold.patternHeight.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Geratriz Máxima: ${unfold.maxSlant.toFixed(2)} mm`, 20, y); y += 7;
+        doc.text(`• Geratriz Mínima: ${unfold.minSlant.toFixed(2)} mm`, 20, y);
+      } else if (pieceType === "square-to-round" && "squareSide" in unfold) {
         doc.text(`• Largura da Chapa: ${unfold.patternWidth.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Altura da Chapa: ${unfold.patternHeight.toFixed(2)} mm`, 20, y); y += 7;
         doc.text(`• Geratriz Máxima: ${unfold.maxSlant.toFixed(2)} mm`, 20, y); y += 7;
@@ -160,7 +184,7 @@ export default function HomePage() {
             <h2 className={styles.sectionTitle}>Parâmetros</h2>
             <InputField
               id="input-diam-big"
-              label="Diâmetro Maior"
+              label={pieceType === "square-to-round" ? "Lado do Quadrado" : "Diâmetro Maior"}
               unit="mm"
               value={diameterBig}
               onChange={(v: string) => handleNumber(setDiameterBig, v)}
@@ -182,6 +206,45 @@ export default function HomePage() {
               onChange={(v: string) => handleNumber(setHeight, v)}
               color="#06d6a0"
             />
+            {pieceType === "round-to-round" && (
+              <InputField
+                id="input-offset"
+                label="Offset X"
+                unit="mm"
+                value={offsetX}
+                onChange={(v: string) => {
+                  const val = parseFloat(v);
+                  if (!isNaN(val)) setOffsetX(val);
+                }}
+                color="#a78bfa"
+              />
+            )}
+            
+            <h3 className={styles.subSectionTitle} style={{ marginTop: 15, fontSize: "12px", color: "#8b949e" }}>Dados do Material</h3>
+            <InputField
+              id="input-thickness"
+              label="Espessura da Chapa"
+              unit="mm"
+              value={thickness}
+              onChange={(v: string) => {
+                const val = parseFloat(v);
+                if (!isNaN(val) && val >= 0) setThickness(val);
+              }}
+              color="#d2a8ff"
+            />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Referência Dimensional</label>
+              <select 
+                value={dimensionRef} 
+                onChange={(e) => setDimensionRef(e.target.value as DimensionRef)}
+                className={styles.input}
+                style={{ width: "100%", padding: "6px", backgroundColor: "#0a0e1a", color: "#c9d1d9" }}
+              >
+                <option value="interno">Medida Interna</option>
+                <option value="externo">Medida Externa</option>
+                <option value="medio">Linha Média (Neutra)</option>
+              </select>
+            </div>
           </div>
 
           {error && (
@@ -205,7 +268,7 @@ export default function HomePage() {
                       <ResultRow label="Raio int. (l)" value={unfold.l} color="#06d6a0" />
                       <ResultRow label="Ângulo (θ)" value={unfold.thetaDeg} unit="°" color="#a78bfa" />
                     </>
-                  ) : pieceType === "cone-excentrico" && "minSlant" in unfold ? (
+                  ) : (pieceType === "cone-excentrico" || pieceType === "round-to-round" || pieceType === "square-to-round") && "minSlant" in unfold ? (
                     <>
                       <ResultRow label="Largura Chapa" value={unfold.patternWidth} color="#ffd166" />
                       <ResultRow label="Altura Chapa" value={unfold.patternHeight} color="#06d6a0" />
@@ -261,10 +324,25 @@ export default function HomePage() {
                     diameterSmall={diameterSmall}
                     height={height}
                   />
-                ) : (
+                ) : pieceType === "cone-excentrico" ? (
                   <EccentricConeCanvas
                     unfold={unfold as EccentricConeUnfold}
                     diameterBig={diameterBig}
+                    diameterSmall={diameterSmall}
+                    height={height}
+                  />
+                ) : pieceType === "round-to-round" ? (
+                  <RoundToRoundCanvas
+                    unfold={unfold as RoundToRoundUnfold}
+                    diameterBig={diameterBig}
+                    diameterSmall={diameterSmall}
+                    height={height}
+                    offsetX={offsetX}
+                  />
+                ) : (
+                  <SquareToRoundCanvas
+                    unfold={unfold as SquareToRoundUnfold}
+                    squareSide={diameterBig}
                     diameterSmall={diameterSmall}
                     height={height}
                   />

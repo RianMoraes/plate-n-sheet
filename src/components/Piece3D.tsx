@@ -11,41 +11,65 @@ interface Piece3DProps {
   diameterBig: number;
   diameterSmall: number;
   height: number;
+  offsetX?: number;
 }
 
-function PieceMesh({ type, diameterBig, diameterSmall, height }: Piece3DProps) {
-  const geometry = useMemo(() => {
-    const R = diameterBig / 2;
-    const r = diameterSmall / 2;
-    const h = height;
-    const segments = 64;
-    const offset = type === "cone-excentrico" ? R - r : 0;
+function PieceMesh(props: Piece3DProps) {
+  const { type, diameterBig, diameterSmall, height, offsetX = 0 } = props;
 
+  const geometry = useMemo(() => {
     const vertices: number[] = [];
     const indices: number[] = [];
+    const segments = 64;
 
-    // Gerar pontos da base e do topo
-    for (let i = 0; i <= segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      const cos = Math.cos(angle);
-      const sin = Math.sin(angle);
+    if (type === "square-to-round") {
+      const S = diameterBig;
+      const r = diameterSmall / 2;
+      const h = height;
 
-      // Ponto da base (z=0)
-      vertices.push(R * cos, 0, R * sin);
-      // Ponto do topo (z=h)
-      vertices.push(offset + r * cos, h, r * sin);
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+
+        const tx = r * cos;
+        const ty = r * sin;
+
+        let bx, by;
+        if (Math.abs(cos) > Math.abs(sin)) {
+          bx = Math.sign(cos) * S / 2;
+          by = bx * Math.tan(angle);
+        } else {
+          by = Math.sign(sin) * S / 2;
+          bx = by / Math.tan(angle);
+        }
+
+        vertices.push(bx, 0, by);
+        vertices.push(tx, h, ty);
+      }
+    } else {
+      const R = diameterBig / 2;
+      const r = diameterSmall / 2;
+      const h = height;
+      const offset = type === "cone-excentrico" ? R - r : type === "round-to-round" ? offsetX : 0;
+
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+
+        vertices.push(R * cos, 0, R * sin);
+        vertices.push(offset + r * cos, h, r * sin);
+      }
     }
 
-    // Gerar faces (triângulos)
     for (let i = 0; i < segments; i++) {
       const b1 = i * 2;
       const t1 = i * 2 + 1;
       const b2 = (i + 1) * 2;
       const t2 = (i + 1) * 2 + 1;
 
-      // Face lateral 1
       indices.push(b1, t1, b2);
-      // Face lateral 2
       indices.push(t1, t2, b2);
     }
 
@@ -54,7 +78,7 @@ function PieceMesh({ type, diameterBig, diameterSmall, height }: Piece3DProps) {
     geom.setIndex(indices);
     geom.computeVertexNormals();
     return geom;
-  }, [type, diameterBig, diameterSmall, height]);
+  }, [type, diameterBig, diameterSmall, height, offsetX]);
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]}> {/* Deitar a peça na grade */}

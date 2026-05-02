@@ -1,3 +1,5 @@
+import { getNeutralDiameter, DimensionRef } from "./materialThickness";
+
 /**
  * CONE EXCÊNTRICO — um lado reto (one-side-straight eccentric cone)
  * =================================================================
@@ -32,6 +34,10 @@ export interface EccentricConeParams {
   diameterSmall: number;
   height: number;
   segments?: number; // divisões (default 48 — suficiente para precisão visual)
+  /** Espessura da chapa (mm) */
+  thickness?: number;
+  /** Referência dimensional (interno, externo, medio) */
+  dimensionRef?: DimensionRef;
 }
 
 export interface EccentricConeUnfold {
@@ -88,15 +94,19 @@ function findThirdPoint(A: P2, B: P2, dAC: number, dBC: number, side: 1 | -1): P
 // ── Função principal ──────────────────────────────────────────────────────────
 
 export function calcEccentricConeUnfold(params: EccentricConeParams): EccentricConeUnfold {
-  const { diameterBig, diameterSmall, height, segments = 48 } = params;
+  const { diameterBig, diameterSmall, height, segments = 48, thickness = 0, dimensionRef = "medio" } = params;
 
   if (diameterBig <= 0 || diameterSmall <= 0 || height <= 0)
     throw new Error("Todos os valores devem ser maiores que zero.");
   if (diameterSmall >= diameterBig)
     throw new Error("O diâmetro menor deve ser menor que o diâmetro maior.");
 
-  const R = diameterBig / 2;
-  const r = diameterSmall / 2;
+  // Obter diâmetros neutros
+  const neutralDiameterBig = getNeutralDiameter(diameterBig, thickness, dimensionRef);
+  const neutralDiameterSmall = getNeutralDiameter(diameterSmall, thickness, dimensionRef);
+
+  const R = neutralDiameterBig / 2;
+  const r = neutralDiameterSmall / 2;
   const e = R - r; // excentricidade → garante um lado reto
   const N = segments;
   const dA = (2 * Math.PI) / N;

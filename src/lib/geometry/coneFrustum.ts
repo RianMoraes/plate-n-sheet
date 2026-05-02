@@ -1,3 +1,5 @@
+import { getNeutralDiameter, DimensionRef } from "./materialThickness";
+
 /**
  * GEOMETRIA: CONE TRUNCADO (CONE FRUSTUM)
  * ========================================
@@ -53,6 +55,10 @@ export interface ConeFrustumParams {
   diameterSmall: number;
   /** Altura vertical do cone truncado (mm) */
   height: number;
+  /** Espessura da chapa (mm) */
+  thickness?: number;
+  /** Referência dimensional (interno, externo, medio) */
+  dimensionRef?: DimensionRef;
 }
 
 export interface ConeFrustumUnfold {
@@ -88,7 +94,7 @@ export interface ConeFrustumUnfold {
  * @throws Error se os parâmetros forem inválidos
  */
 export function calcConeFrustumUnfold(params: ConeFrustumParams): ConeFrustumUnfold {
-  const { diameterBig, diameterSmall, height } = params;
+  const { diameterBig, diameterSmall, height, thickness = 0, dimensionRef = "medio" } = params;
 
   // Validações básicas
   if (diameterBig <= 0 || diameterSmall <= 0 || height <= 0) {
@@ -98,8 +104,12 @@ export function calcConeFrustumUnfold(params: ConeFrustumParams): ConeFrustumUnf
     throw new Error("O diâmetro menor deve ser menor que o diâmetro maior.");
   }
 
-  const R = diameterBig / 2;   // raio da base maior
-  const r = diameterSmall / 2; // raio da base menor
+  // Obter diâmetros neutros
+  const neutralDiameterBig = getNeutralDiameter(diameterBig, thickness, dimensionRef);
+  const neutralDiameterSmall = getNeutralDiameter(diameterSmall, thickness, dimensionRef);
+
+  const R = neutralDiameterBig / 2;   // raio da base maior na linha neutra
+  const r = neutralDiameterSmall / 2; // raio da base menor na linha neutra
 
   // Geratriz do cone truncado: s = √( h² + (R - r)² )
   const s = Math.sqrt(height ** 2 + (R - r) ** 2);
