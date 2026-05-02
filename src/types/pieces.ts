@@ -3,7 +3,7 @@
  * Adicionar novos tipos de peça aqui no futuro.
  */
 
-export type PieceType = "cone-truncado" | "cone-excentrico" | "round-to-round" | "square-to-round";
+export type PieceType = "cone-truncado" | "cone-excentrico" | "round-to-round" | "square-to-round" | "rect-to-round" | "rect-to-rect";
 
 export interface PieceMeta {
   id: PieceType;
@@ -31,5 +31,15 @@ export const PIECE_TYPES: PieceMeta[] = [
     id: "square-to-round",
     label: "Quadrado → Redondo",
     description: "Transição de base quadrada para topo circular",
+  },
+  {
+    id: "rect-to-round",
+    label: "Retângulo → Redondo",
+    description: "Transição de base retangular para topo circular",
+  },
+  {
+    id: "rect-to-rect",
+    label: "Retângulo → Retângulo",
+    description: "Transição de base retangular para topo retangular (ou quadrado para quadrado)",
   },
 ];

@@ -12,18 +12,64 @@ interface Piece3DProps {
   diameterSmall: number;
   height: number;
   offsetX?: number;
+  rectWidth?: number;
+  topWidth?: number;
 }
 
 function PieceMesh(props: Piece3DProps) {
-  const { type, diameterBig, diameterSmall, height, offsetX = 0 } = props;
+  const { type, diameterBig, diameterSmall, height, offsetX = 0, rectWidth = 0, topWidth = 0 } = props;
 
   const geometry = useMemo(() => {
     const vertices: number[] = [];
     const indices: number[] = [];
     const segments = 64;
 
-    if (type === "square-to-round") {
-      const S = diameterBig;
+    if (type === "rect-to-rect") {
+      const L1 = diameterBig;
+      const W1 = rectWidth;
+      const L2 = diameterSmall;
+      const W2 = topWidth;
+      const h = height;
+
+      // 4 corners of base
+      const bC1 = [L1/2, 0, W1/2];
+      const bC2 = [-L1/2, 0, W1/2];
+      const bC3 = [-L1/2, 0, -W1/2];
+      const bC4 = [L1/2, 0, -W1/2];
+
+      // 4 corners of top
+      const tC1 = [L2/2, h, W2/2];
+      const tC2 = [-L2/2, h, W2/2];
+      const tC3 = [-L2/2, h, -W2/2];
+      const tC4 = [L2/2, h, -W2/2];
+
+      const addTri = (p1: number[], p2: number[], p3: number[]) => {
+        vertices.push(...p1, ...p2, ...p3);
+      };
+
+      // Face 1: Front (C1-C4)
+      addTri(bC1, tC1, bC4);
+      addTri(tC1, tC4, bC4);
+
+      // Face 2: Left (C4-C3)
+      addTri(bC4, tC4, bC3);
+      addTri(tC4, tC3, bC3);
+
+      // Face 3: Back (C3-C2)
+      addTri(bC3, tC3, bC2);
+      addTri(tC3, tC2, bC2);
+
+      // Face 4: Right (C2-C1)
+      addTri(bC2, tC2, bC1);
+      addTri(tC2, tC1, bC1);
+
+      // Set indices sequentially because we just added the exact triangles
+      for (let i = 0; i < vertices.length / 3; i++) {
+        indices.push(i);
+      }
+    } else if (type === "square-to-round" || type === "rect-to-round") {
+      const L = diameterBig; // Comprimento
+      const W = type === "rect-to-round" ? rectWidth : diameterBig; // Largura
       const r = diameterSmall / 2;
       const h = height;
 
@@ -36,11 +82,11 @@ function PieceMesh(props: Piece3DProps) {
         const ty = r * sin;
 
         let bx, by;
-        if (Math.abs(cos) > Math.abs(sin)) {
-          bx = Math.sign(cos) * S / 2;
+        if (Math.abs(cos * W) > Math.abs(sin * L)) {
+          bx = Math.sign(cos) * L / 2;
           by = bx * Math.tan(angle);
         } else {
-          by = Math.sign(sin) * S / 2;
+          by = Math.sign(sin) * W / 2;
           bx = by / Math.tan(angle);
         }
 
@@ -63,14 +109,16 @@ function PieceMesh(props: Piece3DProps) {
       }
     }
 
-    for (let i = 0; i < segments; i++) {
-      const b1 = i * 2;
-      const t1 = i * 2 + 1;
-      const b2 = (i + 1) * 2;
-      const t2 = (i + 1) * 2 + 1;
+    if (type !== "rect-to-rect") {
+      for (let i = 0; i < segments; i++) {
+        const b1 = i * 2;
+        const t1 = i * 2 + 1;
+        const b2 = (i + 1) * 2;
+        const t2 = (i + 1) * 2 + 1;
 
-      indices.push(b1, t1, b2);
-      indices.push(t1, t2, b2);
+        indices.push(b1, t1, b2);
+        indices.push(t1, t2, b2);
+      }
     }
 
     const geom = new THREE.BufferGeometry();
@@ -78,7 +126,7 @@ function PieceMesh(props: Piece3DProps) {
     geom.setIndex(indices);
     geom.computeVertexNormals();
     return geom;
-  }, [type, diameterBig, diameterSmall, height, offsetX]);
+  }, [type, diameterBig, diameterSmall, height, offsetX, rectWidth, topWidth]);
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]}> {/* Deitar a peça na grade */}
