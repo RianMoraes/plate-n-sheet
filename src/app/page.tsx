@@ -91,7 +91,7 @@ export default function HomePage() {
       doc.rect(0, 0, 210, 40, "F");
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(22);
-      doc.text("Plate n Sheet", 15, 20);
+      doc.text("SheetForge", 15, 20);
       doc.setFontSize(12);
       doc.setTextColor(88, 166, 255);
       doc.text(`Relatório Técnico — ${pieceLabel}`, 15, 30);
@@ -162,7 +162,7 @@ export default function HomePage() {
       // Rodapé
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
-      doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")} — Plate n Sheet MVP 6`, 105, 285, { align: "center" });
+      doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")} — SheetForge MVP 6`, 105, 285, { align: "center" });
 
       doc.save(`planificacao_${pieceType}.pdf`);
     } catch (err) {
@@ -177,7 +177,7 @@ export default function HomePage() {
     <div className={styles.root}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <span className={styles.logo}>⚙ Plate n Sheet</span>
+          <span className={styles.logo}>⚙ SheetForge</span>
           <span className={styles.badge}>MVP 6</span>
         </div>
       </header>

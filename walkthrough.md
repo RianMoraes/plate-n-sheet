@@ -172,7 +172,7 @@ A planificação de um cone truncado produz um **setor de anel** (coroa circular
 
 ## 🏁 Projeto Finalizado (MVP 1-6)
 
-Esta fase inicial do **Plate n Sheet Web** foi concluída com sucesso, entregando uma ferramenta completa para caldeiraria:
+Esta fase inicial do **SheetForge Web** foi concluída com sucesso, entregando uma ferramenta completa para caldeiraria:
 - **Precisão Geométrica**: Cálculos validados para cones concêntricos e excêntricos.
 - **Visualização de Ponta**: Desenhos 2D técnicos e modelos 3D interativos.
 - **Ferramental**: Medição manual e exportação para PDF.

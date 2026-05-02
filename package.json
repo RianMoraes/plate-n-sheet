@@ -1,7 +1,7 @@
 {
-  "name": "plate-n-sheet",
+  "name": "sheet-forge",
   "version": "1.0.0",
-  "description": "Aplicação de planificação de peças metálicas - Plate n Sheet",
+  "description": "Aplicação de planificação de peças metálicas - SheetForge",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

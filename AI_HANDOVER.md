@@ -1,9 +1,9 @@
-# Plate n Sheet - Arquitetura e Estado do Projeto (MVP 6)
+# SheetForge - Arquitetura e Estado do Projeto (MVP 6)
 
 Este documento foi gerado para servir como um **ponto de restauração de contexto** para qualquer inteligência artificial ou desenvolvedor que venha a assumir ou continuar o projeto a partir daqui.
 
 ## 🎯 Objetivo Atual do Projeto
-Transformar o "Plate n Sheet Web" em uma ferramenta de engenharia industrial de grau profissional para caldeiraria e traçagem de chapas metálicas, com foco extremo em **precisão dimensional (linha neutra)** e **usabilidade visual (UI/UX 2D e 3D)**.
+Transformar o "SheetForge Web" em uma ferramenta de engenharia industrial de grau profissional para caldeiraria e traçagem de chapas metálicas, com foco extremo em **precisão dimensional (linha neutra)** e **usabilidade visual (UI/UX 2D e 3D)**.
 
 ---
 

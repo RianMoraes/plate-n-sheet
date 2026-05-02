@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Plate n Sheet — Planificação de Peças Metálicas",
+  title: "SheetForge — Planificação de Peças Metálicas",
   description:
     "Aplicação de desenvolvimento geométrico e planificação de peças metálicas. Cone truncado, redução redonda-redonda e muito mais.",
 };
